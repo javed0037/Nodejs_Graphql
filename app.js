@@ -17,6 +17,29 @@ const app = express();
 app.use(bodyParser.json())
 const events =[];
 
+const  getEvent =  async (eventId) => {
+    // console.log("getEvent",eventId);
+    let eventData = await  EventSchema.find({_id: { $in: eventId } });
+    console.log("eventData",eventData);
+    return eventData
+}
+
+const  userfunction =  (userId) => {
+    return UserSchema.findById(userId).then(data=>{
+
+        return {
+            ...data,
+            createEvent: getEvent(data.createEvent)
+        }
+
+    }).catch(e=>{
+
+    });
+}
+
+
+
+
 app.use('/graphql',graphqlHTTP({
         schema: buildSchema(`
 
@@ -26,12 +49,15 @@ app.use('/graphql',graphqlHTTP({
             description: String!
             price: Float!
             date: String!
+            creator:User!
         }
 
         type User{
             _id: ID!
             email: String!
-            password: String!
+            password: String!,
+            createEvent: [Event!]
+
         }
 
 
@@ -61,15 +87,23 @@ app.use('/graphql',graphqlHTTP({
        }
        `),
        rootValue:{
-           events:async ()=>{
+           events: ()=>{
                try {
-                const getEvent =  await EventSchema.find();
-                return getEvent;
+                  return EventSchema.find().then(getEvent=>{
+                    return getEvent.map((event)=>{
+                        console.log("event ::",event);
+                        return {
+                            ...event._doc,
+                            creator:  userfunction.bind(this,event._doc.creator)
+                        }
+                    })
+       
+                });
                } catch (error) {
                    
                }
            },
-           createEvent: async (args)=> {
+        createEvent: async (args)=> {
         try { 
 
            const createEvent = new EventSchema({
