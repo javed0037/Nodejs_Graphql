@@ -7,8 +7,12 @@ const { transformEvent } = require('./merge')
 
 module.exports = {
 
-events: async () => {
+events: async (args, req) => {
     try {
+
+        if(!req.isAuth){
+            return new Error('Unorthorized')
+        }
       const getEvent =   await  EventSchema.find();
             return getEvent.map((event) => {
                 return transformEvent(event);
@@ -20,21 +24,25 @@ events: async () => {
     }
 },
 
-createEvent:  async (args) => {
+createEvent:  async (args,req) => {
     try{
+        
+        if(!req.isAuth){
+            return new Error('Unorthorized')
+        }
         const createEvent = new EventSchema({
             title: args.eventInput.title,
             description: args.eventInput.description,
             price: +args.eventInput.price,
             date: args.eventInput.date,
-            creator: "5ff68f08efe110246b940dd2"
+            creator: req.userId
         })
         
         const eventData=  await createEvent.save();
 
         
-    const user= await UserSchema.findById("5ff68f08efe110246b940dd2");                
-       if (!user) {
+        const user= await UserSchema.findById(req.userId);                
+          if (!user) {
                     throw new Error('User not found')
                 }
                 user.createEvent.push(createEvent);

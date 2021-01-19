@@ -4,11 +4,16 @@ const { bookingTransfrom, transformEvent } = require('./merge')
 
 module.exports = {
 
-bookEvent: async(args) => {
+bookEvent: async(args,req) => {
     try{
+
+        if(!req.isAuth){
+            return new Error('Unorthorized')
+        }
+
         const eventdata = await EventSchema.findOne({_id: args.bookingInput.eventId})
         const booking = new Booking({
-            user: "5ff68f08efe110246b940dd2",
+            user: req.userId,
             event: eventdata,
         })
         const getBooking =  await booking.save();
@@ -19,10 +24,13 @@ bookEvent: async(args) => {
     
 },
 
-booking: async () =>{
+booking: async (args,req) =>{
     try{
-        const booking = await Booking.find();
 
+        if(!req.isAuth){
+            return new Error('Unorthorized')
+        }
+        const booking = await Booking.find();
         return booking.map((booking)=>{
           return bookingTransfrom(booking)
     })
@@ -31,9 +39,11 @@ booking: async () =>{
         console.log('error',err);
     }
 },
-cancelBooking: async (args)=>{
+cancelBooking: async (args,req)=> {
     try{
-
+        if(!req.isAuth){
+            return new Error('Unorthorized')
+        }
         const booking = await Booking.findById(args.bookingId).populate('event');    
         await Booking.deleteOne({_id: args.bookingId});
         return transformEvent(booking.event);

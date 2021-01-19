@@ -1,7 +1,8 @@
-const UserSchema = require('../model/user');
 
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const salt = bcrypt.genSaltSync(10);
+const UserSchema = require('../model/user');
 
 
 
@@ -28,6 +29,26 @@ module.exports = {
         }
 
     },
+login: async ({email, password}) => {
+    try{
+        const user = await UserSchema.findOne({email});
+        if(!user){
+            throw new Error("user is not find");
+        }
+       const comparePassword =  await bcrypt.compare(password, user.password);
+         if(!comparePassword){
+              throw new Error("password is incorrect");
+        }
+       const token =  jwt.sign({userId: user._id,email: user.email},"ad2wallet",{expiresIn: "1h"})
+         return {
+            userId: user.id,
+            token,
+            tokenExpiration:1
+        }
+    }catch(e){
+        throw new Error(e)
+    }
 
+}
    
 }
