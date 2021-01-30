@@ -8,6 +8,7 @@ const UserSchema = require('../model/user');
 
 module.exports = {
     createUser: async (args) => {
+        console.log("args",args);
         try {
             const getUser = await UserSchema.findOne({
                 email: args.UserInput.email

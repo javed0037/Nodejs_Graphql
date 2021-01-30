@@ -30,4 +30,11 @@ margin-right: 1rem;
 box-shadow: 1px 1px 5px black;
 color: white;
 cursor: pointer;
+};
+
+.form-actions button:hover,
+.form-actions button:active {
+background: rgb(255, 0, 242);
+
+border-color:rgb(255, 0, 242);
 }

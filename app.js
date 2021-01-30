@@ -4,14 +4,16 @@ const { graphqlHTTP } = require('express-graphql');
 const mongoose = require('mongoose');
 const buildSchema1 = require('./schema/index')
 const {rootResolver} = require('./resolver/index');
-const isAuth = require('./middlewares/is_auth')
-
+const isAuth = require('./middlewares/is_auth');
+const cors = require('cors')
 mongoose.connect('mongodb://localhost:27017/GraphQL', {
     useNewUrlParser: true
 })
 
 
 const app = express();
+app.use(cors())
+
 app.use(bodyParser.json())
 
 app.use(isAuth);
