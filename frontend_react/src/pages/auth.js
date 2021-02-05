@@ -1,10 +1,17 @@
 import React,{ Component } from 'react';
 import './Auth.css'
+import AuthContext from '../context/auth-context';
+
+
 
 class Auth extends Component {
-state = {
+
+    state = {
     isLogin: true
 }
+
+static contextType = AuthContext;
+
 constructor(props){
     super(props);
     this.emailEL = React.createRef();
@@ -53,6 +60,7 @@ if(!this.state.isLogin){
         }
         ` 
     }
+}
     fetch('http://localhost:5000/graphql',{
         method: "POST",
         body: JSON.stringify(requestBody),
@@ -61,16 +69,20 @@ if(!this.state.isLogin){
         }
 
     }).then(res=>{
-        if(res.status !== 200 || res.status !== 201){
+        console.log("javed",res.status);
+        if(res.status !== 200 && res.status !== 201) {
             throw new Error('Faliled')
         }
         return res.json()
-    }).then(data=>{
-        console.log('data',data);
+    }).then(resData=>{
+        if(resData.data.login.token){
+            this.context.login(resData.data.login.token,resData.data.login.userId,resData.data.login.tokenExpiration);
+        }
+        console.log('data',resData);
     }).catch(e=>{
         console.log('error',e);
     })    
-}
+
 
 }
 

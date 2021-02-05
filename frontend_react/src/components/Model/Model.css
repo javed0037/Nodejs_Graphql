@@ -1,0 +1,37 @@
+.model {
+width: 50rem;
+max-width: 90%;
+background: white;
+box-shadow: 0 2px 8px rgb(0, 0, 26);
+position: fixed;
+top: 20vh;
+left:5%
+}
+
+.model-header {
+    padding: 1rem;
+    background: rgb(65, 105, 225);
+    color: white;
+
+}
+.model-header h1{
+    motion: 0;
+    font-size: 1.25rem;
+}
+
+.model-content{
+    padding: 1rem;
+}
+.model-actions {
+    display: flex;
+    justify-content: flex-end;
+
+}
+
+@media (min-width: 768Px){
+
+ .model{
+     width: 30rem;
+     left: calc((100% - 30rem)/2);
+ }
+}

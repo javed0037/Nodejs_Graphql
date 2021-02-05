@@ -6,23 +6,54 @@ import Event from './pages/event';
 import Booking from './pages/booking'
 import './App.css';
 import MainNavigation from './components/Navigation/MainNavigation'
+import AuthContext from '../src/context/auth-context';
 
-class App extends Component{
+
+class App extends Component {
+
+  state = {
+    token: null,
+    userId: null
+  }
   
+login = (token,userId,tokenExpiration) => {
+  this.setState({
+    token: token,
+    userId: userId
+  })
+
+};
+
+logout = () => {
+  this.setState({
+    token: null,
+    userId: null
+  })
+
+}
+
+
   render(){
  
     return(
           <BrowserRouter>
-          <MainNavigation />
-          <main className="main-content">
-             <Switch>
-             <Redirect from = "/" to = "/auth" exact />
-             <Route path="/auth" component= {AuthComponent}></Route>
-             <Route path="/event" component={Event}></Route>
-             <Route path="/booking" component={Booking}></Route>
-           </Switch>
-           </main>
-           
+            <AuthContext.Provider value={{token:this.state.token,userId: this.state.userId,login: this.login,logout:this.logout}}>
+             <MainNavigation />
+               <main className="main-content">
+               <Switch>
+              {this.state.token && <Redirect from = "/" to = "/event" exact />}
+              {this.state.token && <Redirect from = "/auth" to = "/event" exact />}
+
+               {!this.state.token && (
+               <Route path="/auth" component= {AuthComponent} />
+               )}
+               <Route path="/event" component={Event} />
+               {this.state.token && <Route path="/booking" component={Booking} />}
+               {!this.state.token && <Redirect to = "/auth" exact />}
+
+               </Switch>
+               </main>
+            </AuthContext.Provider>
           </BrowserRouter>
     );
   }
