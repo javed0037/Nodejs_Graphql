@@ -19,6 +19,6 @@
 .event_list_item {
     margin: 1rem 0;
     padding: 1rem;
-    border: blue;
+    border: 1px solid blue;
 
 }

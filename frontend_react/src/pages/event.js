@@ -6,7 +6,8 @@ import AuthContext from '../context/auth-context'
 
 class Event extends Component {
     state ={
-         creating:false
+         creating:false,
+         events:[]
     }
 
     static contextType = AuthContext
@@ -86,7 +87,7 @@ this.setState({
             return res.json()
         }).then(resData=>{
             if(resData.data){
-                console.log("testing data",resData);
+                this.fetchedEvents()
             }
             console.log('data',resData);
         }).catch(e=>{
@@ -132,9 +133,11 @@ fetchedEvents = ()=>{
             return res.json()
         }).then(resData=>{
             if(resData.data){
-                console.log("testing data1111111111111111111",resData);
+            const events = resData.data.events;
+            this.setState({
+                events
+            })
             }
-            console.log('data',resData);
         }).catch(e=>{
             console.log('error',e);
         }) 
@@ -147,6 +150,11 @@ fetchedEvents = ()=>{
 
 
     render(){
+
+        const eventList = this.state.events.map(event=>{
+            return  <li key={event._id} className = "event_list_item">{event.title}</li>
+             
+        })
         return(
             <React.Fragment>
                 {this.state.creating && <BackBrop />}
@@ -177,8 +185,7 @@ fetchedEvents = ()=>{
                 </div>
     }
                 <ul className = "event_list">
-                    <li className = "event_list_item">Test1 </li>
-                    <li className = "event_list_item">Test2 </li>
+                    {eventList}
                 </ul>
             </React.Fragment>
             
