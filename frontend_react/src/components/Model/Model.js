@@ -8,8 +8,8 @@ const model = props =>(
         <section className = "model-content"></section>
         {props.children}
         <section className = "model-action"></section>
-        {props.Confirm && <button className = "btn" onClick = {props.onCancel}>Cancel</button>}
-        {props.Cancel &&  <button className = "btn" onClick = {props.onConfirm}>Confirm</button>}
+        {props.Confirm && (<button className = "btn" onClick = {props.onCancel}>Cancel</button>)}
+        {props.Cancel &&  (<button className = "btn" onClick = {props.onConfirm}>{props.ConfirmText}</button>)}
     </div>
 )
 

@@ -5,7 +5,8 @@ background: white;
 box-shadow: 0 2px 8px rgb(0, 0, 26);
 position: fixed;
 top: 20vh;
-left:5%
+left:5%;
+z-index: 100;
 }
 
 .model-header {

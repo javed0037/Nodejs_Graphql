@@ -1,13 +1,16 @@
 import React, {Component} from 'react';
 import './Event.css';
 import Model from '../components/Model/Model';
-import BackBrop from '../components/BackDrops/BackBrop';
-import AuthContext from '../context/auth-context'
-
+import BackDrop from '../components/BackDrops/BackBrop';
+import AuthContext from '../context/auth-context';
+import EventList  from '../components/Events/EventList/EventList';
+import Spinner from '../components/Spinner/Spinner'
 class Event extends Component {
     state ={
          creating:false,
-         events:[]
+         events:[], 
+         isloading: false,
+         selectedEvent: null
     }
 
     static contextType = AuthContext
@@ -31,7 +34,9 @@ class Event extends Component {
     }
  modelCancelHandler =()=>{
 this.setState({
-    creating:false
+    creating:false,
+    selectedEvent: null
+
 })
  }
 
@@ -87,7 +92,23 @@ this.setState({
             return res.json()
         }).then(resData=>{
             if(resData.data){
-                this.fetchedEvents()
+                // this.fetchedEvents()
+                this.setState(prevState=>{
+                    const updatedEvent = [...prevState.events];
+                    updatedEvent.push({
+                        _id: resData.data.createEvent._id,
+                        title: resData.data.createEvent.userId,
+                        description: resData.data.createEvent.description,
+                        date: resData.data.createEvent.date,
+                        price: resData.data.createEvent.price,
+                        creator:{
+                           _id: this.context.userId
+                        }
+
+                        
+                    })
+                    return { events: updatedEvent };
+                })
             }
             console.log('data',resData);
         }).catch(e=>{
@@ -96,11 +117,16 @@ this.setState({
     console.log(event)
  }
 
+ 
+
 // function use to handle getting event data
 
 fetchedEvents = ()=>{
     this.setState({
         creating:false
+    })
+    this.setState({
+        isloading: true
     })
     const token = this.context.token;
     let requestBody = {
@@ -112,6 +138,10 @@ fetchedEvents = ()=>{
                     description
                     price
                     date
+                    creator{
+                        _id
+                        email
+                      }
                 }
             }
             ` 
@@ -126,6 +156,9 @@ fetchedEvents = ()=>{
             }
     
         }).then(res=>{
+            this.setState({
+                isloading: false
+            })
             console.log("javed",res.status);
             if(res.status !== 200 && res.status !== 201) {
                 throw new Error('Faliled')
@@ -140,25 +173,41 @@ fetchedEvents = ()=>{
             }
         }).catch(e=>{
             console.log('error',e);
+            this.setState({
+                isloading: false
+            })
         }) 
  }
 
 
 
 
+ ShowEventDetailsHandler = eventId =>{
+     console.log('calling here',eventId);
+    this.setState(prevState=>{
+        const selectedEvent =  prevState.events.find(e=>e._id === eventId)
+        return {selectedEvent: selectedEvent}
 
+    }
+       //  selectedEvent:
+    )
 
+}
 
+bookEventHandler = ()=>{
+
+}
     render(){
-
-        const eventList = this.state.events.map(event=>{
-            return  <li key={event._id} className = "event_list_item">{event.title}</li>
-             
-        })
         return(
             <React.Fragment>
-                {this.state.creating && <BackBrop />}
-                {this.state.creating && <Model title = "Add Event" Cancel Confirm onCancel = {this.modelCancelHandler} onConfirm = {this.modelConfirmHandler}>
+                {(this.state.creating || this.state.selectedEvent )&&<BackDrop />}
+                {this.state.creating && <Model title = "Add Event" 
+                Cancel
+                Confirm
+                onCancel = {this.modelCancelHandler}
+                onConfirm = {this.modelConfirmHandler}
+                ConfirmText=  "Confirm"
+                >
                  <form>
                      <div className ="form-control">
                          <label htmlFor="title">Title</label>
@@ -178,16 +227,32 @@ fetchedEvents = ()=>{
                      </div>
                  </form>
                 </Model>}
+
+                {this.state.selectedEvent && (<Model title = {this.state.selectedEvent.title} 
+                Cancel
+                Confirm
+                onCancel = {this.modelCancelHandler} 
+                onConfirm = {this.bookEventHandler}
+                ConfirmText = "Book"
+                >
+                 <h1>{this.state.selectedEvent.title}</h1>
+                 <h2>{this.state.selectedEvent.price}</h2>
+                 <p>{this.state.selectedEvent.description}</p>
+                </Model>)
+                }
                 {this.context.token &&
                 <div className ="events-control">
                 <p>Share Your Event</p>
                  <button className="btn" onClick = {this.startCreateEventHandler}>Create event</button>
                 </div>
     }
-                <ul className = "event_list">
-                    {eventList}
-                </ul>
+            {this.state.isloading ? (<Spinner/>) :
+             (<EventList events={this.state.events}
+             authUserId = {this.context.userId}
+             eventViewDetails={this.ShowEventDetailsHandler} />)
+            }
             </React.Fragment>
+
             
         )
     }
